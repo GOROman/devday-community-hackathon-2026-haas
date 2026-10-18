@@ -5,7 +5,8 @@ import { handleMcpRequest, queueMcpEvent, dispatchMcpEvent } from './mcp-events'
 import type { McpDatabase, McpDependencies, McpEvent } from './mcp-events'
 
 const migration = await Bun.file(new URL('../../migrations/0002_mcp_events.sql', import.meta.url)).text()
-const secret = 'whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8='
+// Deterministic MCP HMAC fixture only; never a Stripe/provider credential.
+const secret = `whsec_${btoa("haas-mcp-events-test-fixture-only-0001")}`
 const callback = 'https://receiver.example.com/callback'
 const start = new Date('2026-10-18T14:00:00Z')
 const event: McpEvent = { eventId: 'evt_case-1_r1', name: 'case.created', timestamp: start.toISOString(), data: { caseId: 'case-1', department: 'support', status: 'active', revision: 1 } }
