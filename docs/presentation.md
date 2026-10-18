@@ -148,4 +148,4 @@ AIの「できない」を、人の出番に。
 
 写真はAI生成のコンセプトイメージ
 
-haas.nullevi.app
+https://haas.nullevi.app/
