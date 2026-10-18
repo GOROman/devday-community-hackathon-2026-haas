@@ -8,6 +8,8 @@
 
 DevDay Community Hackathon 2026 の提出用モノレポです。[app/](app/) にReact、音声・業務Agent、MCP、Workerのソース・テスト・検証記録を同梱しています。資料中の「株式会社HaaS」はプロジェクト上の表現です。
 
+![HaaS構想。人の専門性・創造性・共感を必要な単位で届ける](docs/slides/concept.jpg)
+
 ## 1. DevDay新機能活用
 
 GPT Liveを音声の入口に、Decisionsで用件・言語を分類し、AgentsからMCPへ人の作業を依頼します。例えばHaaSの技術確認を人へ渡し、模擬回答を元のAgentとLiveへ戻す経路を検証しています。
@@ -38,15 +40,21 @@ AIだけでは確定できない質問や作業を、人へ具体的な依頼と
 
 ![依頼者からAIへ、人の能力を組み合わせて成果を返す](docs/images/haas-flow.png)
 
+![依頼を分解し、人へ渡し、AIが成果を届ける一般構想](docs/slides/workflow.jpg)
+
+![将来構想としての詐欺被害防止・有人相談支援。実装や提携ではない](docs/slides/value.jpg)
+
 ## すぐ試す：公開の模擬UI
 
-[公開フロントデモ](https://future-company-fe-preview.aliceroad123.chatgpt.site/) はインストール不要です。
+[デモ入口](https://haas.nullevi.app/) は5秒でフロントへ移動する案内ページです。自動移動を停止できます。[直接デモ](https://future-company-fe-preview.aliceroad123.chatgpt.site/)も利用できます。
+
+![採用受付はHaaSの一例。右側はローカル保管模擬UIの実画面](docs/slides/demo.jpg)
 
 1. 「AI受付と話す」から会話を開始し、文字で開発環境などを質問。「人に確認を依頼」から架空の質問を送ります。
 2. 同じブラウザの別タブで[担当者画面](https://future-company-fe-preview.aliceroad123.chatgpt.site/operator)を開き、模擬呼出し・引受・架空の回答・結果報告を試します。
 3. 元の会話への回答反映、終了後のメモを確認します。取消・応答なしも試せます。
 
-これはlocalStorageによる模擬動作で、別ブラウザ・別端末には同期しません。公開先のUIは更新される場合があります。[模擬UIのソース](app/frontend/src/LegacyPrototype.tsx)と[状態テスト](app/frontend/tests/demo.test.ts)も同梱しています。実AI・実通話とは分けて確認し、実在する応募者の個人情報は入力しないでください。`haas.nullevi.app` はクッションページを準備中で未稼働です。
+これはlocalStorageによる模擬動作で、別ブラウザ・別端末には同期しません。公開先のUIは更新される場合があります。[模擬UIのソース](app/frontend/src/LegacyPrototype.tsx)と[状態テスト](app/frontend/tests/demo.test.ts)も同梱しています。実AI・実通話とは分けて確認し、実在する応募者の個人情報は入力しないでください。デモ入口の公開確認は別担当の記録に基づきます。今回のローカル実装の実測と混同しません。
 
 ## このリポジトリから起動
 
