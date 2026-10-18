@@ -50,31 +50,11 @@ AIが依頼を整理し、必要な人へ仕事を渡し、回答・成果を依
 
 ## 資料と入口
 
-- [公開フロントデモ](https://future-company-fe-preview.aliceroad123.chatgpt.site/)：ブラウザ内の模擬応答で操作を試すUI。
-- [詳細版Google Slides（全10枚）](https://docs.google.com/presentation/d/1KRTMFYQiLugfNoKXPJWCc3JFyjXT8NkxEPqvpC5EvUY/edit)：元の内容・順序を保持した資料。
-- [別デッキの3分本編（6枚）](https://docs.google.com/presentation/d/1nZfflzDYlQgFWedtzofWIgupZD2inLphNzmtGdWG_XA/edit)：所有者限定のまま作成。
-- [3分本編の公開PDF](docs/slides-3min-preview.pdf) / [180秒の配分と発表メモ](docs/presentation-3min.md)：審査・閲覧用。
-- [全10ページのプレビューPDF](docs/slides-preview.pdf)：公式プレビュー画像をまとめた画像版。
-- [プレゼンの表示テキスト](docs/presentation.md)：検索・読み取り用の全ページテキスト。
-- [構想の原典（GOROmanのnote）](https://note.com/goroman/n/n8867b4737495)：AIが人的サービスの分解・配分・品質管理・調整を担う広い構想。将来像を含み、今回の実装範囲とは区別します。
-- [ロゴ・社訓の提案PR #62](https://github.com/pupuchan1/future-company/pull/62)：ロゴは生成画像です。
+- [公開フロントデモ](https://future-company-fe-preview.aliceroad123.chatgpt.site/)：ブラウザ内の模擬応答によるUI。
+- [作品説明スライド](https://docs.google.com/presentation/d/1KRTMFYQiLugfNoKXPJWCc3JFyjXT8NkxEPqvpC5EvUY/edit) / [閲覧用PDF](docs/slides-preview.pdf) / [表示テキスト](docs/presentation.md)。
+- [構想の原典](https://note.com/goroman/n/n8867b4737495)：将来像を含むHaaS構想。今回の実装範囲とは区別します。
 
-`https://haas.nullevi.app/` は準備中で、クッションページを別作業で用意しています。現時点では未稼働です。デモには上記の公開フロントURLを使ってください。
-
-## 3分プレゼン本編
-
-本編は詳細版とは別のデッキです。計180秒はデモのタブ切替を含む進行案で、発表時間を実測した結果ではありません。詳細チーム紹介・技術構成・行動指針は詳細版に残しています。
-
-| 順 | 内容 | 目安 |
-| --- | --- | ---: |
-| 1 | 表紙・Team HaaS | 15秒 |
-| 2 | HaaS構想 | 25秒 |
-| 3 | 仕組みの編集可能な図 | 35秒 |
-| 4 | 採用受付デモ（切替込み） | 60秒 |
-| 5 | 価値と実装境界 | 25秒 |
-| 6 | 締め | 20秒 |
-
-[本編PDF](docs/slides-3min-preview.pdf) / [発表メモ](docs/presentation-3min.md)。Google Slidesのノートにも各ページの配分・発表メモ・詳細版のURLを記載しています。
+`https://haas.nullevi.app/` はクッションページを準備中で未稼働です。デモには公開フロントURLを使ってください。
 
 ## 構成と実装境界
 
@@ -146,7 +126,3 @@ npm run dev
 | [GOROman](https://x.com/GOROman) | PM・プレゼン資料・ハードウェアハッカー |
 
 行動指針：頼る判断も、知性である。人の判断に、敬意と対価を。任せた先まで、やりきる。
-
-## 資料の状態
-
-2026-10-18に読み取り・取り込み。詳細版Google Slidesは10ページを保持し、3分本編は別デッキの6ページです。PDFの直接エクスポートはファイル参照がMacへ実体化されず失敗したため、公式プレビュー画像から閲覧用PDFを作成し、表示テキストをMarkdownに保存しました。PDFは編集可能な原稿・検索可能な文字PDFではありません。スライドの実プロフィール画像は維持していますが、丸型への統一は未完了です。元資料は上記Google Slidesを参照してください。
