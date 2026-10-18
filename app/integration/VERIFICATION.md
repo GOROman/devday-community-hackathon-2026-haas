@@ -1,0 +1,110 @@
+# 接続プロトタイプの検証記録
+
+2026-10-18 14:42 JST。PR #4 / Issue #8 / Issue #10。架空の会話・合成音声・模擬電話を使用。実ユーザーの録音やAPIキーは記録・コミットしていない。
+
+| 確認 | 結果 |
+| --- | --- |
+| `npm run integration:test` | 41/41成功。MCP/機器18、Events11、オーケストレーター12 |
+| 既存Reactの `npm run build` / `npm run lint` | 成功。今回Reactソースの変更なし |
+| Live / frontend JSの構文、`git diff --check` | 成功 |
+| 実Decisions | 採用/日本語、非採用HaaS/英語を分類。native triggerの候補も受信 |
+| 実Agents / MCP | 面談テンプレート取得、誰に/何を/何を返すかを含む人間依頼、結果到着後の元担当継続 |
+| 実WebRTC・採用経路 | 日本語の面談開始→英語へ切替→エンジニアに質問→模擬回答→元採用Agentの英語説明→Live出力。4,649音声フレーム、うち非無音1,990、受信エラー0 |
+| 実WebRTC・HaaS経路 | 非採用のイベント用技術確認→HaaS Agent→同じMCP→模擬回答→HaaS Agentの英語説明→Live出力。3,269音声フレーム、うち非無音1,298、受信エラー0 |
+| HaaS経路の終了 | `session.closed`受信、hosted Agents削除、cleanup_pendingなし |
+| 採用経路の終了 | 最初の終了要求ではfinalization応答未確認、Agents削除待ち1件。後続の削除再試行は成功。Live finalizationはこの試行について未確認として残す |
+| 開発UI | ブラウザで担当・模擬デバイス・依頼・回答本文の表示を確認。マイク入力・実スピーカーの人による聴取は別の未実施項目 |
+
+音声入力はaiortcからWebRTCへ送った合成音声。受信した音声フレームとLive出力字幕を確認しており、ブラウザのマイク権限・実マイク・実スピーカー・人間の声での確認とは区別する。
+
+模擬回答は「架空のチームがTypeScript/React、PRレビュー、CIを使う」という試験データ。Liveは架空情報である旨を説明した。実企業や実エンジニアから得た回答ではない。
+
+## 回帰試験の対象
+
+- 同じ依頼/イベントの再送、別案件・古い命令・期限切れ・回答なしの扱い。
+- 部分発話で担当を確定しない。分類中に発話が変われば再分類し、安定しなければ業務を実行しない。
+- 採用/HaaSは別Agents session。依頼元セッションへ結果を返し、利用者の最新言語を保持する。
+- Agents作成応答待ちの終了、Live並行作成の同一case/上限、開発APIのHost/Origin制限。
+- MCP Eventsの購読検証、署名、有限再送、イベントID維持、解除・失効。
+
+## チーム結合として残るもの
+
+- pupuのReact画面と、r74techのWorker/DO/D1への接続。15時台にはPR #15/#12としてコード共有済み。画面はpupuの実装を採用し、案件ID・認証境界と結果返却の結合は #18/#19 で進める。
+- Node handoff_idとWorker requestIdの対応、社員認証/claim/revisionを通した結果APIアダプター。
+- 実機ベル、受話器からの実回答、人間の音声経路。
+- 実ChatGPT Work/dotsのMCP Events購読と、購読後の業務実行。
+- 公開Web、アプリ認証、本番リポジトリへの移管、永続case復旧。
+
+PRはDraftのまま共有し、これらの境界・受入範囲をマージ時に判断する。
+
+## 2026-10-18 15時台: 担当別の声切替
+
+最新のNode試験は52/52成功。既知のAPI接続例外はHTTP 502として返し、statusのない例外も許可したクラス名と原因コードだけをprivateなerrors.jsonlに記録する。例外本文・入力・キーはこの診断に含めない。診断追加後の実API再試行は行っておらず、以下の汎用400の原因を遡って確定したものではない。
+
+aiortcで同じケースの一般受付→採用→HaaSを試験した。入力はmacOSの合成音声PCMだけを使用し、実マイクやユーザー録音は使用していない。受付→採用の実接続までは確認できたが、その後の業務Agent接続失敗により、3担当を通した結合成功とはしていない。
+
+| 確認 | 結果 |
+| --- | --- |
+| 起動時履歴の実APIスキーマ | 最初の切替でuser履歴の`type: text`が400となった。`user: input_text` / `assistant: output_text`に修正し、型の回帰を含む局所10/10テスト成功。その後の候補作成は成功 |
+| 受付の合成入力・応答 | 「テスト太郎」と受付確認の入力を認識し、株式会社HaaSの一般受付として音声応答 |
+| 受付→採用の2段階切替 | 同じ`case_id`でhandoff→新WebRTC接続→activate成功。`session.started`で`shida`→`harema`を確認 |
+| 音声の受信 | 成功した切替試行で受付1,370フレーム（非無音193）、採用1,202フレーム（非無音603）、音声受信エラー0。採用側のactivate前は非無音0 |
+| activate再送 | 同じ候補IDとtokenで200・同一結果を確認。tokenは証跡へ保存していない |
+| 採用Agentへの業務引継ぎ | `department_selection`の開始後に`Connection error.`。この試行の面談質問、元Agent復帰、名前の意味的な保持は未確認 |
+| 限定した再試行 | キーなしのOpenAI到達確認は401・3.53秒。その後の再試行は候補作成前の汎用400で終了。候補IDやprovider status付き診断はなく、同じ接続障害か別の例外かは未確定 |
+| HaaSの`marin`音声・3担当結合 | この声切替試行では未到達。14:42のHaaS経路単独検証とは区別する |
+| 終了 | 返された全Live IDへ終了要求を実施し、全WebRTC peerを閉じた。`cleanup_pending`はすべて空。型エラー試行の受付は`session.closed`確認済み。他の試行は`close_requested`でfinalization応答未確認。今回の業務Agent作成IDは返っていない |
+| 接続直後の自動挨拶 | 入力前の25秒は無音。合成入力後の挨拶は確認。入力なしでの自動発話は未確認 |
+
+ローカル証跡は`/Users/limo/Documents/Codex/2026-10-18/moj/work/`の`webrtc-handoff.py`、`voice-handoff-1792303785.json`（型エラー・正常終了）、`voice-handoff-1792303855.json`（受付→採用の実切替）、`voice-handoff-1792303986.json`（限定再試行）。局所テストログは`/Users/limo/Documents/Development/logs/dev-runs/2026-10-18/run-15i9lleu.log`。受信フレームとサーバーのvoice設定を検証したもので、人による音色・聞き取りやすさの評価ではない。
+
+## 2026-10-18 15:30 JST: 接続原因の切り分けと単一HaaS音声の再確認
+
+上記の接続障害について、実SDKの原因例外まで取得した。Node 24のアドレス選択待ち時間250 msでは、IPv4の`connect ETIMEDOUT`とIPv6の`EHOSTUNREACH`を含む`AggregateError`で、約531 ms後に接続前の失敗となった。同じ実SDKの待ち時間だけを2,000 msへ変更した比較では、Decisions、Agents作成、公開MCP、人間模擬回答、同じAgentsへの結果返却、削除が成功した。認証エラーではなかった。
+
+修正`430e5c5`はサーバープロセスの接続待ちを最低2,000 msにし、TCP接続前と判定できる失敗だけを最大3回まで再試行する。途中のsocket resetや応答不明のPOSTは再送しない。実SDKの`APIConnectionError.name`は`Error`だったため、SDKの型と深い`cause`も使ってHTTP 502へ分類する。失敗したAgents削除はIDを保持する。診断には許可した例外名・原因コードのみを記録し、入力やキーを含めない。`2c6da3f`はLiveの終了理由、期待した終了か、sideband終了コードを追加した。
+
+| 確認 | 結果 |
+| --- | --- |
+| 接続・handoff・オーケストレーターの局所試験 | 29/29成功。実SDKの多重cause、HTTP 502、有限再試行、曖昧なPOSTの再送禁止、終了中の再試行停止、削除失敗後の再試行を含む。終了理由追加後は影響する23/23を再確認 |
+| 単一声HaaSの実WebRTC | `haas-reliability-1792304899`で成功。合成英語入力→`marin`→HaaS Agents→公開MCP→模擬人間回答→同じAgents sessionの`human_event`→Live音声 |
+| 回答内容 | TypeScript/React、PRレビュー、CIという架空回答を英語で説明し、simulatorの回答で実人間ではないと明示 |
+| 音声・接続 | 3,319音声フレーム、非無音1,658、回答到着後の非無音1,266、受信エラー0。終了要求までWebRTC接続とICEを維持 |
+| 終了 | `session.closed`の`reason=close_requested`、`live_finalized=true`、Agents削除成功、`cleanup_pending=[]` |
+| 三担当の声切替 | 別の`voice-handoff-1792304437`では受付→採用、受付で伝えた名前の引継ぎ、実MCPへの依頼と模擬回答まで確認。その後Liveが閉じて元Agent復帰を中断。閉鎖理由の記録追加前だったため原因未確定。3担当の結合成功とはせずP1として残す |
+
+ローカル証跡は同じ`moj/work/`の`network-probe-1792304274265.json`（接続前失敗）、`network-probe-1792304294546.json`（2,000 ms比較成功）、`webrtc-haas-reliability.py`、`haas-reliability-1792304899.json`（最終成功）、`webrtc-haas-reliability-confirm.log`。先行する`haas-reliability-1792304772.json`も回答音声と正常終了を確認できたが、試験が`human_event`後の同じ語の再発話を要求してタイムアウトした。判定の起点を実際の回答到着`human.completed`へ修正し、最終試行で成功を確認した。元の失敗証跡は変更していない。
+
+この確認はNode単独・合成音声・模擬電話の範囲。pupuのフロント、Worker結果アダプター、公開デプロイ、技能検索、秋月の交換機キットや実機ベル・人間の音声は、この試験では検証していない。
+
+## 2026-10-18: Agents APIによるHaaS調査・依頼・回答照合
+
+`quality-1792304972588`で、保存済みキーを使った実Agents APIと公開MCPを検証した。音声ではなく業務Agentの試験で、電話側は明示的なシミュレーターを使った。
+
+- 「秋月の交換機キットと黒電話があるが型番は未確認」という依頼に、`web_search`の検索・公式PDF取得、`find_human_experts`、`request_human`を順に実行した。ツールの4項目はいずれもcompleted。
+- 依頼はハードウェア担当向けに、型番・版・端子・電源・接続適合の確認、検証計画、受諾可否を具体化した。公式資料のURLをsummaryに含め、実作業未実施と不明点を保持した。登録済みの役割は技能の完全な保証でも勤務中の証明でもない。
+- 故意にベルと無関係なTypeScript/Reactの模擬回答を返した。同じAgents sessionは「依頼した確認への回答はない」「ベルが鳴ったとは確認できない」と説明した。無関係な回答を作業成功として扱わなかった。
+- 人間イベントで検索や依頼を再実行せず、元のAgentで結果を照合した。終了時はAgents削除済み、`cleanup_pending=[]`。
+
+局所テストはMCP/ネットワーク10件成功。証跡は私有の`moj/work/quality-1792304972588.json`、実行スクリプトは`agents-quality-probe.mjs`。これは1シナリオの実接続確認であり、全タスクの品質や実機動作を保証する評価ではない。発話へMarkdownリンクが混ざったため、資料URLは依頼summaryに保持し音声には含めない指示を追加した。この最後の文面調整は別の実API試験をまだ行っていない。
+
+## 2026-10-18 15:42以降: 実ブラウザー・Worker回答・公開入口
+
+- 本物の`LiveClient`と`WorkerCaseClient`をブラウザーで動かし、合成音声から実GPT Live/HaaS Agents/MCPへ接続。Workerに保存された模擬人間回答が、元のAgents sessionで処理され、Liveの音声・字幕へ戻った。66.796秒時点でWebRTC/ICEはconnected、`marin`、非無音の音量サンプル259、同一handoffのcompleted/revision 5を確認。76秒時点まで回答音声の字幕が続いた。実マイク・黒電話の実機を使った試験ではない。
+- 証跡は私有の`moj/work/browser-live-harness/evidence/browser-1792305753649.json`。この試験はローカルWorker/DO/D1と公開Node relayを通す。正式なCloudflare本番D1とは分けて扱う。
+- 続く手動のHaaS→採用切替は、新しい`harema`接続まで成功したが、30秒後にexpiredと`context_injection_incomplete`が発生。原因切り分け中で、切替後の音声成功とは扱わない。証跡`browser-1792305821579.json`。
+- 認証付き公開gatewayからpupu最新の画面を表示し、実ブラウザーでフォームログイン成功。秘密はサーバー側だけに保存。gatewayの認証・Origin・cookie・WebSocket中継13テスト、フロント70テストとbuild成功。
+- 15:45に、共有されたCloudflare Access設定で既存本番Workerのcompany APIは認証あり200 JSON／なし302を確認。現行本番は`haas`案件400、既存`support`案件201、案件証明とvoice/statusは404、手元の社員トークンは401。統合版の配置と社員認証の一致をIssue #33とSlackでr74techへ依頼済み。
+- 15:47のSlack更新で、共有Accessトークンは2026-10-19 00:00 JSTまでと確認。ID・Secretは変更なし。値はサーバー専用ファイルに保存し、Gitやブラウザには含めない。
+- 2回目の実ブラウザー試験では受付`shida`のままHaaSへ業務委譲し、同一case/handoffのWorker保存回答revision 5と英語の最終音声を確認。135秒時点でWebRTC接続とRTP送信が継続し、一度のICE切断からも復帰した。一方、status取得失敗後に声切替の可否が復旧せず、手動切替が拒否される不具合を確認。`browser-1792306151301.json`を根拠に #35 で修正する。
+
+
+## 2026-10-18 15:58–16:06 JST: 同じ案件で受付から採用音声へ切替
+
+継続した合成無音クロックを送る実ブラウザー試験で、受付 `shida` から採用 `harema` への手動切替が7.919秒で成功した。同じcaseと採用Agents sessionを維持し、切替後70.171秒まで接続を継続。追加の非無音サンプル178、候補側RTP 3,606 packets / 125,576 bytesを確認した。新しいLiveは `close_requested` でfinalized、業務Agentは削除済み。旧Liveの終了要求は送信済みだがfinalization応答がなく、新Liveの終了成功と分けて扱う。
+
+以前の30秒expiryはこの試行では再現していない。入力クロック変更だけが原因だと確定した試験ではなく、自動ルーティングや三担当の連続切替、実機電話までを確認したものではない。証跡は私有の `moj/work/browser-live-harness/evidence/p1-browser-manual-correlated.json`。
+
+- 一時的なstatus取得失敗で既知の声切替機能が無効になる問題を修正。403では無効化し、タイムアウト/5xxでは直前の機能情報を維持する。関連29テスト成功。
+- 自動切替はDecisionsの確定ルート、業務応答、発話後の静かな区間を待つ。声だけの変更から業務Agentを再実行せず、409時の再試行は最大3回。関連70テストと型検査成功。自動切替自体の新たな実ブラウザー確認は未完了。
+- r74techが16:01に既存本番Workerへ `7439949` を配置。version `8213ab20-f524-4ca9-8662-7f3b2fc57bc2`。16:06の独立確認でcompany/案件取得200、voice/status 503 (`voice_relay_unconfigured`)、社員認証401。本番にNodeと同一の2つのサーバーsecretを設定し、Nodeの `WORKER_API_URL` を本番へ向ける作業に進む。15:45時点の400/404は現在の状態ではない。
