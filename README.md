@@ -4,83 +4,102 @@
 
 **AIの『できない』を、人の出番に。**
 
-人がAIを使う日常から、AIが必要な人の能力を呼び出す仕事の形へ。依頼をAIが整理・分解し、人の専門性・創造性・共感を組み合わせ、成果を依頼者へ届ける構想です。採用受付を最初の実装例にしています。
+AIが答えを確定できないとき、人への確認まで仕事を進める音声受付です。相談を分類し、必要な技能を探し、「誰に・何を・何を返してほしいか」を依頼として具体化。人の回答を元のAgentと音声会話へ返します。採用受付と、採用以外の技術確認を実装例にしています。
 
-DevDay Community Hackathon 2026 の提出用モノレポです。[app/](app/) にReact、音声・業務Agent、MCP、Workerのソース・テスト・検証記録を同梱しています。資料中の「株式会社HaaS」はプロジェクト上の表現です。
+**確認済みの成果**
 
-![HaaS構想。人の専門性・創造性・共感を必要な単位で届ける](docs/slides/concept.jpg)
+- **実APIで回答返却まで接続**：React受付 → GPT Live → HaaS Agent → 認証付きMCP → 模擬人間回答 → Workerへの保存 → 元のAgent・Liveへの反映と終了を、同じ案件で確認した[チームの結合記録](app/docs/local-voice-demo-verification.md)があります。入力は合成音声、人間側は電話シミュレーターです。
+- **回答内容を照合**：実Agentsの技術調査シナリオでは、依頼と無関係な模擬回答を作業成功にせず、未回答と判断した[記録](app/integration/VERIFICATION.md)があります。
+- **ローカルで再現できる自動検証**：フロント89件、音声・MCP86件、Worker77件、計**252件**とReact・Workerの型チェック・ビルドが成功。[提出時の実測](docs/submission-verification.md)と[fixでの再検証](docs/fix-verification.md)を分けて記載しています。自動テストは外部APIや電話を使わない回帰試験です。
 
-## 1. DevDay新機能活用
+[**公開デモ入口**](https://haas.nullevi.app/) · [作品説明PDF](docs/slides-preview.pdf) · [ソースコード](app/) · [検証・再現手順](#ローカルで再現する)
 
-GPT Liveを音声の入口に、Decisionsで用件・言語を分類し、AgentsからMCPへ人の作業を依頼します。例えばHaaSの技術確認を人へ渡し、模擬回答を元のAgentとLiveへ戻す経路を検証しています。
-
-根拠：[業務Agent](app/integration/backend.mjs)、[Live](app/integration/live-session.mjs)、[MCP](app/integration/human/)、[実API試験記録](app/integration/VERIFICATION.md)。[MCP Events](app/integration/events/)は購読・署名・再送の実装とローカル試験があり、実ChatGPT Work/dotsの購読は別の確認対象です。
-
-## 2. 使いやすさ
-
-![新Liveフロントの初期画面。HaaSのロゴ、受付オーブ、話してみるボタンを表示。音声開始は未実行](docs/screenshots/live-home.jpg)
-
-受付の入口をまとめ、会話・担当・依頼・回答の状態を表示します。担当者は引受・回答を操作し、利用者は結果を元の会話で受け取ります。
-
-根拠：[React受付](app/frontend/src/pages/ReceptionPage.tsx)、[接続クライアント](app/frontend/src/features/live/client.ts)、[UI試験](app/frontend/tests/)、下記の新フロント表示。今回は音声開始や担当者画面の操作は未確認です。利用者調査や定量的な操作性評価は未実施です。
-
-## 3. 有用性
-
-AIだけでは確定できない質問や作業を、人へ具体的な依頼として渡します。誰に・何を・どんな結果を求めるかを整理し、人の回答が質問に答えているかを照合する試作です。
-
-根拠：[依頼仕様](app/integration/human/README.md)、[技能候補](app/integration/human/experts.mjs)、[案件API](app/src/backend/api.ts)、[結果返却](app/integration/worker-bridge.mjs)。実Agentsの1シナリオでは、無関係な模擬回答を作業成功としないことを確認した記録があります。時間削減や品質改善の実測ではありません。
-
-## 4. 独創性
-
-人をAIの代わりに使う発想ではなく、人が持つ能力をAIが仕事として組み合わせるHaaSを主軸にしています。黒電話を人への依頼の接点として構想し、採用以外の仕事にも共通の依頼・結果返却経路を用意しました。
-
-根拠：[全体設計](app/integration/ARCHITECTURE-1445.md)、[模擬電話](app/integration/human/simulate-phone.mjs)、[HaaS経路の試験](app/integration/orchestration.test.mjs)。実機ベル・実通話・報酬支払いの成功は主張しません。
-
-将来は、疑わしい相談を信頼できる人や専門窓口へつなぐ詐欺被害防止、AIだけで抱えず訓練を受けた人へつなぐ有人相談支援を想定しています。いずれも将来構想で、実装済み機能・成果保証・実在サービスとの提携ではありません。危機相談をAIが代替する主張はしません。
+DevDay Community Hackathon 2026の作品リポジトリです。提出版はタグ [`submission-2026-10-18`](https://github.com/GOROman/devday-community-hackathon-2026-haas/tree/submission-2026-10-18) に保存し、この `fix` ブランチでは説明と再現性を改善しています。タグはユーザー指定時点の状態を保存したもので、実際の審査対象コミットとの同一性を示すものではありません。
 
 ![依頼者からAIへ、人の能力を組み合わせて成果を返す](docs/images/haas-flow.png)
 
-![依頼を分解し、人へ渡し、AIが成果を届ける一般構想](docs/slides/workflow.jpg)
+## ４つの評価軸と実装の根拠
 
-![将来構想としての詐欺被害防止・有人相談支援。実装や提携ではない](docs/slides/value.jpg)
+### 1. DevDay新機能活用：音声・判断・業務実行を人への依頼につなぐ
 
-## 公開フロント（Live UI）
+GPT Liveを音声の入口にし、Decisionsが用件と言語を分類、採用/HaaSのAgentsがMCPを通じて技能検索・人への依頼・結果取得を行います。回答は依頼元セッションへ戻し、利用者の言語を保って説明します。
 
-[新しいフロントエンドを開く](https://haas-recruiting-live.moaiwakai.chatgpt.site/)。共通入口は https://haas.nullevi.app/ です。転送先を更新中のため、この撮影対象へは新フロントの直接リンクを使えます。
+- 実装：[Live接続](app/integration/live-session.mjs)、[業務Agent](app/integration/backend.mjs)、[MCPと人への依頼](app/integration/human/)、[結果返却アダプター](app/integration/worker-bridge.mjs)。
+- 自動検証：[分類・言語保持・結果の重複配送防止](app/integration/orchestration.test.mjs)、[Worker接続](app/integration/worker-bridge.test.mjs)。`npm run integration:test` で再現できます。
+- 実接続の根拠：[React・実API・Workerを同一案件で結合した記録](app/docs/local-voice-demo-verification.md)。MCP Eventsも[署名・購読・有限再送の実装と試験](app/integration/events/)を同梱しています。実ChatGPT Work/dotsでの購読は今後の確認対象です。
 
-2026-10-18 17:08〜17:09 JSTに初期画面を撮り直しました。HaaSのロゴ、受付オーブ、言語選択、採用・仕事の依頼・人への確認を説明する表示を確認しています。
+### 2. 使いやすさ：入口を一つにし、会話の連続性を保つ
 
-1. 新フロントを開き、相談内容と利用条件を確認します。
-2. 音声開始ボタンには、マイクを使用し音声をAIへ送信する旨が表示されています。
-3. 今回は開始ボタンを押していません。新公開環境の実AI会話・人への依頼・担当者回答・実電話の動作成功は主張しません。
+利用者は共通受付から相談し、用件・言語に合わせて担当へつながります。担当の声を切り替える処理では、接続準備と有効化を待ち、失敗時には元の会話へ戻す設計です。終了時には録音・接続をまとめて解放します。
 
-撮影では送信系HTTP通信を遮断しました。旧mock版のブラウザ内保存・担当者画面の確認結果を、この新フロントの実動結果へ読み替えないでください。[撮影記録](docs/public-live-capture.md)を参照してください。
+- 実装：[React受付](app/frontend/src/pages/ReceptionPage.tsx)、[Liveクライアント](app/frontend/src/features/live/client.ts)。
+- 自動検証：[切替成功・失敗・取消・再送・録音の継続](app/frontend/tests/live-handoff.test.ts)、[会話・接続等のUI試験](app/frontend/tests/)。`npm run test:frontend` で再現できます。
+- 実操作の根拠：[合成音声を使ったReact受付の結合記録](app/docs/local-voice-demo-verification.md)。これは接続・状態遷移の確認で、利用者調査による使いやすさの評価は今後の課題です。
 
-## このリポジトリから起動
+### 3. 有用性：確認が必要な仕事を具体化し、回答を元の相談へ戻す
 
-Node.js **24.14以上の24系**とnpmを使います。Workerの一部テストにはBunも必要です。
+「バックエンド担当者に開発言語とフレームワークを聞いてほしい」という相談を、人への依頼と期待する回答に変換。Worker側で案件・担当者・回答の版を管理し、元の相談へ返します。無関係な回答を受け取った場合も、依頼を達成したかを照合します。
+
+- 実装：[依頼仕様](app/integration/human/README.md)、[技能候補](app/integration/human/experts.mjs)、[案件API](app/src/backend/api.ts)、[回答返却](app/integration/worker-bridge.mjs)。
+- 自動検証：[案件・認証境界](app/src/backend/api.test.ts)、[結果返却の結合試験](app/src/backend/bridge.integration.test.ts)、[NodeとWorkerの結合](app/integration/worker-bridge.test.mjs)。`npm run test:worker` と `npm run integration:test` で再現できます。
+- 実接続の根拠：冒頭の同一案件の回答返却と、[無関係な回答を未達成とした実Agentsの１シナリオ](app/integration/VERIFICATION.md)。時間削減や品質向上の定量評価は今後行います。
+
+### 4. 独創性：人の専門性・創造性・共感をAIが仕事として組み合わせる
+
+人がAIを使うだけでなく、AIが必要な人の能力を呼び出す **Human as a Service** が中心です。採用専用の固定フローを越えて、技術確認などにも共通の依頼・回答経路を用意しました。黒電話は、その人への依頼を身近な道具で受け取る接点として構想しています。
+
+- 実装：[全体設計](app/integration/ARCHITECTURE-1445.md)、[模擬電話](app/integration/human/simulate-phone.mjs)、[人側サービス](app/integration/human/)。
+- 自動検証：[依頼元への返却](app/integration/orchestration.test.mjs)、[人側サービスとシミュレーター](app/integration/human/)。`npm run integration:test` で再現できます。
+- 実装範囲：ソフトウェア上の電話シミュレーターまで。黒電話の実機ベル・実通話・報酬支払いは将来の接続対象です。
+
+## 公開デモと検証条件
+
+入口は **https://haas.nullevi.app/**、現在の案内先は https://future-company-voice-node.r74.workers.dev/ です。受付を開き、マイク利用・音声送信の説明を確認してから操作してください。実音声の動作にはサーバー側のAPI・認証・relay設定が必要です。
+
+検証対象は次のように区別しています。今回のfixで外部通話・有料APIは実行していません。
+
+| 対象 | 確認済みの範囲 | 証拠・条件 |
+| --- | --- | --- |
+| 同梱コードの回帰試験 | 252件、型チェック、React・Workerビルド | [fix再検証](docs/fix-verification.md)。外部API・実電話なし |
+| チームの実API結合 | React・Live・Agent・MCP・Worker・回答返却・終了 | [結合記録](app/docs/local-voice-demo-verification.md)。合成音声・模擬人間回答 |
+| 公開画面の過去の撮影 | 旧公開UIの操作と、その後のLive画面の初期表示 | [公開mock撮影記録](docs/submission-verification.md)、[Live画面撮影記録](docs/public-live-capture.md)。現在の転送先での通し実演とは別の記録 |
+
+単一HaaS音声の別試行では3,319音声フレーム、非無音1,658、受信エラー0、終了時 `live_finalized=true` を記録しています。[試行別の詳細](app/integration/VERIFICATION.md)には、途中で中断した複数担当切替も残しています。実マイク・実人間との通話・公開環境全体の安定動作は今後の実証項目です。採否の自動決定・候補者評価・順位付けは対象外です。
+
+## ローカルで再現する
+
+Node.js **24.14以上の24系**、npm、Workerの一部テスト用のBunが必要です。
 
 ```sh
-git clone https://github.com/GOROman/devday-community-hackathon-2026-haas.git
+git clone --branch fix https://github.com/GOROman/devday-community-hackathon-2026-haas.git
 cd devday-community-hackathon-2026-haas/app
-npm ci
+npm ci --ignore-scripts --no-audit --no-fund
+npm run test:frontend
+npm run integration:test
+npm run test:worker
+npm run typecheck
+npm run build
+```
+
+上記は外部APIの資格情報なしで実行する回帰試験です。テストにはローカルHTTPサーバーの起動が含まれます。
+
+画面とローカル開発サービスを起動する場合：
+
+```sh
 npm run db:migrate:local
 npm run dev
 ```
 
-入口は `http://127.0.0.1:5173/`。React（5173）、Node音声（4320）、Worker（8787）を起動し、設定済みなら認証付きrelay（4330）も起動します。ローカルWorkerは[wrangler.local.jsonc](app/wrangler.local.jsonc)を使います。
+入口は `http://127.0.0.1:5173/`。React（5173）、Node音声（4320）、Worker（8787）を起動し、設定済みなら認証付きrelay（4330）も起動します。音声設定なしでも画面を確認でき、音声開始は `voice_relay_unconfigured` で停止します。
 
-実音声には[.env.example](app/.env.example)のサーバー側OpenAI設定、外部から到達できる認証付きMCP、Workerの社員認証・relay設定が必要です。設定不足なら音声開始を止めます。[環境・起動説明](app/README.md)、[Worker接続条件](app/docs/backend-integration.md)、[結果返却仕様](app/docs/worker-result-bridge.md)を参照してください。キーはブラウザ変数・URL・コミットに入れません。本番設定ファイルは実環境の値を含まないプレースホルダーにしています。
+実音声に必要な設定は[環境・起動説明](app/README.md)、[サーバー側環境変数の例](app/.env.example)、[Worker接続条件](app/docs/backend-integration.md)、[結果返却仕様](app/docs/worker-result-bridge.md)を参照してください。外部から到達できる認証付きMCPも必要です。キーはブラウザ変数・URL・コミットに入れず、本番設定には環境の値を設定してください。同梱の本番設定ファイルはプレースホルダーです。
 
 | コマンド（app/内） | 確認対象 |
 | --- | --- |
-| `npm run test:frontend` | UI状態、接続、担当切替、音量、録音処理 |
-| `npm run integration:test` | Node、MCP、依頼・回答、通信・終了処理 |
-| `npm run test:worker` | 認証・案件・DO/D1・結果返却境界（Bunも必要） |
-| `npm run typecheck` | ReactとWorkerの型 |
-| `npm run build` | ReactとWorkerのビルド |
-
-提出コミット `4b4599d` をNode24.14で実行し、**自動テスト252件、型チェック、React・Workerのビルド、ローカル起動に成功**しました。Chromeでは同梱の保管模擬UIで依頼・引受・回答・会話反映・終了・再読込を確認。ローカルの音声受付はrelay未設定のHTTP503で停止し、実AI開始は0件でした。これは新公開環境の動作結果ではありません。[実測記録と条件](docs/submission-verification.md)を参照してください。
+| `npm run test:frontend` | UI状態、担当切替、接続、音量・録音処理 |
+| `npm run integration:test` | Node、MCP、人への依頼・回答、通信・終了処理 |
+| `npm run test:worker` | 認証・案件・DO/D1・結果返却境界 |
+| `npm run typecheck` / `npm run build` | ReactとWorkerの型・ビルド |
 
 ## 構成
 
@@ -91,8 +110,8 @@ flowchart LR
   N --> D[Decisions 用件・言語分類]
   N <--> A[採用 / HaaS Agents]
   A <--> M[MCP 人への依頼・結果取得]
-  M <--> S[模擬電話 / 模擬回答]
-  M -. 実機未検証 .-> H[黒電話ブリッジ]
+  M <--> S[電話シミュレーター / 模擬回答]
+  M -. 将来の接続 .-> H[黒電話ブリッジ]
   M --> E[MCP Events]
   N <--> B[結果返却アダプター]
   B <--> W[Worker / Hono / DO / D1]
@@ -100,24 +119,11 @@ flowchart LR
   F --> W
 ```
 
-同梱コードの接続構成です。新公開フロントの初期表示確認が、全体の実接続成功を意味するものではありません。
+## 将来の展開・作品資料・チーム
 
-## 検証記録と再現範囲
+専門性・創造性・共感を必要な単位で届ける構想を、疑わしい相談を信頼できる人へつなぐ詐欺被害防止や、訓練を受けた人への有人相談支援へ広げることを想定しています。これらは将来構想で、実装・提携・成果の実証はこれからです。
 
-[今回の提出コードの実測](docs/submission-verification.md)：フロント89件、音声/MCP86件、Worker77件。lintはerrorなし・既存warning9件、ビルドにはチャンクサイズ等のwarningがあります。下表は各担当者が残した別試行の記録です。
-
-| 記録 | 確認された範囲 | 条件・限界 |
-| --- | --- | --- |
-| [音声・Agents・MCP](app/integration/VERIFICATION.md) | 採用/HaaS個別経路、単一HaaS音声、調査・依頼・回答照合 | 合成音声・実API・模擬人間回答。実マイク・実人間の通話とは区別 |
-| [UI・Worker結合](app/docs/review-integration-verification.md) | 案件作成、所有者認証、案件限定証明と取消、Worker68件・FE57件等の担当者記録 | Node・公開relay・実Liveまでの全体通しの完了は示していません |
-| [ローカル音声確認](app/docs/local-voice-demo-verification.md) | 現行起動経路の確認記録 | 認証・実API・ブラウザ権限など、各試行の条件を参照 |
-| [オーブ表示](app/frontend/ORB-VERIFICATION.md) | 会話状態と音量表示 | 見た目・模擬入力から実通話成功は推定しません |
-
-単一HaaS音声の成功試験は3,319音声フレーム、非無音1,658、受信エラー0、終了時 `live_finalized=true` と記録されています。人間側は架空のTypeScript/React等の模擬回答です。3担当の連続声切替では中断した試行があり、個別経路から全体成功へ一般化しません。採否の自動決定・候補者評価・順位付けは対象外です。
-
-## 作品資料とチーム
-
-[作品説明PDF](docs/slides-preview.pdf) / [説明テキスト](docs/presentation.md) / [構想の原典](https://note.com/goroman/n/n8867b4737495)。ロゴと写真は生成画像です。
+[作品説明PDF](docs/slides-preview.pdf) / [説明テキスト](docs/presentation.md) / [構想の原典](https://note.com/goroman/n/n8867b4737495)。資料中の「株式会社HaaS」はプロジェクト上の表現です。ロゴと写真は生成画像です。
 
 Team HaaS：りも＝開発リード・API連携、pupuchan＝フロントエンド、r74＝バックエンド、GOROman＝PM・プレゼン資料・ハードウェアハッカー。
 
