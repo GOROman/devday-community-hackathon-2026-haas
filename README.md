@@ -18,11 +18,11 @@ GPT Liveを音声の入口に、Decisionsで用件・言語を分類し、Agents
 
 ## 2. 使いやすさ
 
-![公開フロントの最新受付。AI音声・黒電話は未接続の共有用UIデモ](docs/screenshots/public-home.jpg)
+![新Liveフロントの初期画面。HaaSのロゴ、受付オーブ、話してみるボタンを表示。音声開始は未実行](docs/screenshots/live-home.jpg)
 
 受付の入口をまとめ、会話・担当・依頼・回答の状態を表示します。担当者は引受・回答を操作し、利用者は結果を元の会話で受け取ります。
 
-根拠：[React受付](app/frontend/src/pages/ReceptionPage.tsx)、[接続クライアント](app/frontend/src/features/live/client.ts)、[UI試験](app/frontend/tests/)、下記の公開模擬デモ。利用者調査や定量的な操作性評価は未実施です。
+根拠：[React受付](app/frontend/src/pages/ReceptionPage.tsx)、[接続クライアント](app/frontend/src/features/live/client.ts)、[UI試験](app/frontend/tests/)、下記の新フロント表示。今回は音声開始や担当者画面の操作は未確認です。利用者調査や定量的な操作性評価は未実施です。
 
 ## 3. 有用性
 
@@ -44,17 +44,17 @@ AIだけでは確定できない質問や作業を、人へ具体的な依頼と
 
 ![将来構想としての詐欺被害防止・有人相談支援。実装や提携ではない](docs/slides/value.jpg)
 
-## すぐ試す：公開の模擬UI
+## 公開フロント（Live UI）
 
-[デモ入口](https://haas.nullevi.app/) は5秒でフロントへ移動する案内ページです。自動移動を停止できます。[直接デモ](https://future-company-fe-preview.aliceroad123.chatgpt.site/)も利用できます。
+[新しいフロントエンドを開く](https://haas-recruiting-live.moaiwakai.chatgpt.site/)。共通入口は https://haas.nullevi.app/ です。転送先を更新中のため、この撮影対象へは新フロントの直接リンクを使えます。
 
-![採用受付はHaaSの一例。右側は現在の公開フロントを撮影した実画面](docs/slides/demo.jpg)
+2026-10-18 17:08〜17:09 JSTに初期画面を撮り直しました。HaaSのロゴ、受付オーブ、言語選択、採用・仕事の依頼・人への確認を説明する表示を確認しています。
 
-1. 「AI受付と話す」から会話を開始し、文字で開発環境などを質問。「人に確認を依頼」から架空の質問を送ります。
-2. 同じブラウザの別タブで[担当者画面](https://future-company-fe-preview.aliceroad123.chatgpt.site/operator)を開き、模擬呼出し・引受・架空の回答・結果報告を試します。
-3. 元の会話への回答反映、終了後のメモを確認します。取消・応答なしも試せます。
+1. 新フロントを開き、相談内容と利用条件を確認します。
+2. 音声開始ボタンには、マイクを使用し音声をAIへ送信する旨が表示されています。
+3. 今回は開始ボタンを押していません。新公開環境の実AI会話・人への依頼・担当者回答・実電話の動作成功は主張しません。
 
-これはlocalStorageによる模擬動作で、別ブラウザ・別端末には同期しません。公開先のUIは更新される場合があります。[模擬UIのソース](app/frontend/src/LegacyPrototype.tsx)と[状態テスト](app/frontend/tests/demo.test.ts)も同梱しています。実AI・実通話とは分けて確認し、実在する応募者の個人情報は入力しないでください。デモ入口の公開確認は別担当の記録に基づきます。今回のローカル実装の実測と混同しません。
+撮影では送信系HTTP通信を遮断しました。旧mock版のブラウザ内保存・担当者画面の確認結果を、この新フロントの実動結果へ読み替えないでください。[撮影記録](docs/public-live-capture.md)を参照してください。
 
 ## このリポジトリから起動
 
@@ -80,19 +80,7 @@ npm run dev
 | `npm run typecheck` | ReactとWorkerの型 |
 | `npm run build` | ReactとWorkerのビルド |
 
-提出コミット `4b4599d` をNode24.14で実行し、**自動テスト252件、型チェック、React・Workerのビルド、ローカル起動に成功**しました。Chromeでは同梱の保管模擬UIで依頼・引受・回答・会話反映・終了・再読込を確認。現行音声受付はrelay未設定のHTTP503で停止し、実AI開始は0件です。[実測記録と条件](docs/submission-verification.md)を参照してください。
-
-## 実画面での依頼と回答
-
-以下は2026-10-18 16:58 JSTにデモ入口から現在の公開フロントを開き、撮り直した実画面です。架空データとブラウザ内保存だけを使い、送信系HTTP通信を遮断して撮影しました。ローカル実装のテスト画像とは区別しています。
-
-![人への確認依頼を作成。状態はこのブラウザ内に保存](docs/screenshots/public-request.jpg)
-
-![担当者が依頼を引き受け、架空の回答を入力](docs/screenshots/public-operator.jpg)
-
-![回答が元の会話と依頼の完了状態へ反映](docs/screenshots/public-answer.jpg)
-
-![終了後に再読込しても回答と再開操作を保持](docs/screenshots/public-result.jpg)
+提出コミット `4b4599d` をNode24.14で実行し、**自動テスト252件、型チェック、React・Workerのビルド、ローカル起動に成功**しました。Chromeでは同梱の保管模擬UIで依頼・引受・回答・会話反映・終了・再読込を確認。ローカルの音声受付はrelay未設定のHTTP503で停止し、実AI開始は0件でした。これは新公開環境の動作結果ではありません。[実測記録と条件](docs/submission-verification.md)を参照してください。
 
 ## 構成
 
@@ -112,7 +100,7 @@ flowchart LR
   F --> W
 ```
 
-同梱コードの接続構成です。公開の模擬UIが全体を実接続していることを意味しません。
+同梱コードの接続構成です。新公開フロントの初期表示確認が、全体の実接続成功を意味するものではありません。
 
 ## 検証記録と再現範囲
 
