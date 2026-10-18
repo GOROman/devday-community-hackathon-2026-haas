@@ -1,8 +1,10 @@
-# プレゼン資料のテキスト
+# プレゼン資料のテキスト（詳細版・全10枚）
 
-[編集可能なGoogle Slides](https://docs.google.com/presentation/d/1KRTMFYQiLugfNoKXPJWCc3JFyjXT8NkxEPqvpC5EvUY/edit) の全10ページから、表示テキストをページ順に取り込みました。写真・プロフィール画像・図の配置は [プレビューPDF](slides-preview.pdf) を参照してください。PDFは公式プレビュー画像から作成した画像版で、Google SlidesのネイティブPDFエクスポートではありません。
+[詳細版Google Slides](https://docs.google.com/presentation/d/1KRTMFYQiLugfNoKXPJWCc3JFyjXT8NkxEPqvpC5EvUY/edit) / [詳細版プレビューPDF](slides-preview.pdf) / [別デッキの3分本編と発表メモ](presentation-3min.md)
 
-「株式会社HaaS」はハッカソンのプロジェクト上の表現で、法人設立済みという主張ではありません。写真はAI生成のコンセプトイメージです。https://haas.nullevi.app/ は準備中・転送未設定です。
+元の全10枚と順序を保持しています。下記は表示テキストの取り込みです。写真・プロフィール画像・編集可能な図はGoogle Slidesを参照してください。PDFは公式プレビュー画像から作成した画像版で、ネイティブPDFエクスポートではありません。
+
+「株式会社HaaS」はハッカソンのプロジェクト上の表現です。法人設立済みという主張ではありません。写真はAI生成のコンセプトイメージです。https://haas.nullevi.app/ はクッションページを別作業で準備中で未稼働です。
 
 ## 1ページ
 
@@ -149,6 +151,4 @@ AIの「できない」を、人の出番に。
 写真はAI生成のコンセプトイメージ
 
 https://haas.nullevi.app/
-準備中・転送未設定
-
-
+準備中・クッションページ未公開
