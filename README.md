@@ -16,6 +16,8 @@ GPT Liveを音声の入口に、Decisionsで用件・言語を分類し、Agents
 
 ## 2. 使いやすさ
 
+![現行ローカル受付。人への相談をまとめる入口](docs/screenshots/current-home.jpg)
+
 受付の入口をまとめ、会話・担当・依頼・回答の状態を表示します。担当者は引受・回答を操作し、利用者は結果を元の会話で受け取ります。
 
 根拠：[React受付](app/frontend/src/pages/ReceptionPage.tsx)、[接続クライアント](app/frontend/src/features/live/client.ts)、[UI試験](app/frontend/tests/)、下記の公開模擬デモ。利用者調査や定量的な操作性評価は未実施です。
@@ -70,7 +72,19 @@ npm run dev
 | `npm run typecheck` | ReactとWorkerの型 |
 | `npm run build` | ReactとWorkerのビルド |
 
-提出取り込み時は依存インストールの承認が得られず、上記を再実行していません。ソース・起動スクリプト・workspaces/lockfile・参照先・秘密混入の静的確認を行いました。以下は各担当者の実行記録です。
+提出コミット `4b4599d` をNode24.14で実行し、**自動テスト252件、型チェック、React・Workerのビルド、ローカル起動に成功**しました。Chromeでは同梱の保管模擬UIで依頼・引受・回答・会話反映・終了・再読込を確認。現行音声受付はrelay未設定のHTTP503で停止し、実AI開始は0件です。[実測記録と条件](docs/submission-verification.md)を参照してください。
+
+## 実画面での依頼と回答
+
+以下は公開サイトではなく、同梱の保管模擬UIをローカル専用fixtureで実操作した画面です。すべて架空データです。
+
+![人への確認依頼を作成。状態はこのブラウザ内に保存](docs/screenshots/legacy-request.jpg)
+
+![担当者が依頼を引き受け、架空の回答を入力](docs/screenshots/legacy-operator.jpg)
+
+![回答が元の会話と依頼の完了状態へ反映](docs/screenshots/legacy-answer.jpg)
+
+![終了後に再読込しても回答と再開操作を保持](docs/screenshots/legacy-result.jpg)
 
 ## 構成
 
@@ -93,6 +107,8 @@ flowchart LR
 同梱コードの接続構成です。公開の模擬UIが全体を実接続していることを意味しません。
 
 ## 検証記録と再現範囲
+
+[今回の提出コードの実測](docs/submission-verification.md)：フロント89件、音声/MCP86件、Worker77件。lintはerrorなし・既存warning9件、ビルドにはチャンクサイズ等のwarningがあります。下表は各担当者が残した別試行の記録です。
 
 | 記録 | 確認された範囲 | 条件・限界 |
 | --- | --- | --- |
