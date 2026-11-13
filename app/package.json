@@ -35,7 +35,7 @@
     "phone:sim": "npm run phone:sim --workspace integration --"
   },
   "dependencies": {
-    "hono": "^4.13.13"
+    "hono": "^4.13.18"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.44.0",
